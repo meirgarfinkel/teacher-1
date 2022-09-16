@@ -1,0 +1,58 @@
+repos:
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.0.1
+      hooks:
+          - id: check-yaml
+          - id: end-of-file-fixer
+          - id: trailing-whitespace
+
+    - repo: local
+      hooks:
+          - id: isort
+            name: Python Sort Imports
+            entry: .venv/bin/python -m isort
+            language: script
+            files: '.*\.py$'
+
+          - id: black
+            name: Python Black Formatter
+            entry: .venv/bin/python -m black
+            language: script
+            files: '.*\.py$'
+
+          - id: flake8
+            name: Python Flake8 Linter
+            entry: poetry run --rm --no-deps web poetry run flake8helled --show-source
+            language: system
+            files: '.*\.py$'
+
+          - id: migrations
+            name: Django Migrations
+            entry: python3 manage.py makemigrations --check --no-input
+            language: system
+            pass_filenames: false
+            stages: [push]
+            files: '.*\.py$'
+
+          - id: naive-check-merge-conflict
+            name: 'Git: Check Merge Conflicts'
+            entry: '^(<<<<<<< |======= |>>>>>>> |=======$)'
+            language: pygrep
+            stages: [push]
+            always_run: true
+
+          - id: pytest
+            name: 'Python: Pytest'
+            entry: poetry run pytest -n auto --disable-warnings
+            language: system
+            verbose: true
+            stages: [push]
+            always_run: true
+            pass_filenames: false
+
+    - repo: https://github.com/pre-commit/mirrors-prettier
+      rev: 'v2.5.1' # Use the sha or tag you want to point at
+      hooks:
+          - id: prettier
+            name: Prettier
+            files: '.*\.js$'
